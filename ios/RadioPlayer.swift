@@ -79,7 +79,7 @@ class RadioPlayer: RCTEventEmitter, FRadioPlayerDelegate {
         }
         print("player \(player) player state did change to \(stateString ?? "Unknown")")
         if (hasListeners) {
-            sendEvent(withName: "StateDidChange", body: stateString)
+            sendEvent(withName: "StateDidChange", body: ["state": stateString])
         }
     }
     
@@ -95,7 +95,7 @@ class RadioPlayer: RCTEventEmitter, FRadioPlayerDelegate {
         }
         print("player \(player) playback state did change to \(playbackStateString ?? "Unknown")")
         if (hasListeners) {
-            sendEvent(withName: "PlaybackStateDidChange", body: playbackStateString)
+            sendEvent(withName: "PlaybackStateDidChange", body: ["playbackState": playbackStateString])
         }
     }
     

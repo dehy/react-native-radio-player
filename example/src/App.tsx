@@ -11,16 +11,21 @@ export default function App() {
   const [metadata, setMetadata] = React.useState<RadioPlayerMetadata>();
 
   React.useEffect(() => {
-    RadioPlayerEvents.addListener('StateDidChange', setPlayerState);
-    RadioPlayerEvents.addListener(
-      'PlaybackStateDidChange',
-      setPlayerPlaybackState
-    );
+    RadioPlayerEvents.addListener('StateDidChange', (eventObject) => {
+      setPlayerState(eventObject.state);
+    });
+    RadioPlayerEvents.addListener('PlaybackStateDidChange', (eventObject) => {
+      setPlayerPlaybackState(eventObject.playbackState);
+    });
     return () => {
-      RadioPlayerEvents.removeListener('StateDidChange', setPlayerState);
+      RadioPlayerEvents.removeListener('StateDidChange', (eventObject) => {
+        setPlayerState(eventObject.state);
+      });
       RadioPlayerEvents.removeListener(
         'PlaybackStateDidChange',
-        setPlayerPlaybackState
+        (eventObject) => {
+          setPlayerPlaybackState(eventObject.playbackState);
+        }
       );
     };
   }, []);
@@ -28,7 +33,7 @@ export default function App() {
   RadioPlayerEvents.addListener('MetadataDidChange', setMetadata);
 
   React.useEffect(() => {
-    RadioPlayer.radioURL('https://stream.fr.morow.com/morow_med.aacp');
+    RadioPlayer.radioURL('http://stream.fr.morow.com/morow_med.aacp');
     return () => {
       RadioPlayer.stop();
     };
