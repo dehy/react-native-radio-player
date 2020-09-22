@@ -38,8 +38,6 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
       UiThreadUtil.runOnUiThread {
         val item: MediaItem = MediaItem.fromUri(uri)
         player.setMediaItem(item)
-        player.prepare()
-        player.play()
         //play()
       }
     }
