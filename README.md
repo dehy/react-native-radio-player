@@ -5,17 +5,36 @@ Play radio streams in react-native
 ## Installation
 
 ```sh
-npm install react-native-radio-player
+yarn install react-native-radio-player
 ```
 
 ## Usage
 
 ```js
-import RadioPlayer from "react-native-radio-player";
+import RadioPlayer, {
+  RadioPlayerEvents,
+  RadioPlayerMetadata,
+} from 'react-native-radio-player';
 
 // ...
 
-const result = await RadioPlayer.multiply(3, 7);
+RadioPlayer.radioURL('https://...');
+RadioPlayer.stop();
+RadioPlayer.play();
+
+// State: loading, loadingFinished
+RadioPlayerEvents.addEventListener('stateDidChange', (event) => {
+  console.log(event.state);
+});
+// Playback State: playing, paused, stopped
+RadioPlayerEvents.addEventListener('PlaybackStateDidChange', (event) => {
+  console.log(event.playbackState);
+});
+// Metadata: {"artistName": "Example Artist", "trackName": "Example Title"}
+RadioPlayerEvents.addListener('MetadataDidChange', (metadata) => {
+  console.log(`Artist: ${metadata.artistName}`);
+  console.log(`Title: ${metadata.trackName}`);
+});
 ```
 
 ## Contributing
