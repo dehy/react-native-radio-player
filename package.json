@@ -32,7 +32,13 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "radio",
+    "webradio",
+    "streaming",
+    "shoutcast",
+    "icecast",
+    "icy"
   ],
   "repository": "https://github.com/dehy/react-native-radio-player",
   "author": "Arnaud de Mouhy <arnaud@admds.net> (https://github.com/dehy)",
