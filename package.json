@@ -7,18 +7,6 @@
   "types": "lib/typescript/src/index.d.ts",
   "react-native": "src/index",
   "source": "src/index",
-  "files": [
-    "src",
-    "lib",
-    "android",
-    "ios",
-    "cpp",
-    "react-native-radio-player.podspec",
-    "!lib/typescript/example",
-    "!**/__tests__",
-    "!**/__fixtures__",
-    "!**/__mocks__"
-  ],
   "scripts": {
     "test": "jest",
     "typescript": "tsc --noEmit",
@@ -125,7 +113,10 @@
       ]
     }
   },
-  "eslintIgnore": ["node_modules/", "lib/"],
+  "eslintIgnore": [
+    "node_modules/",
+    "lib/"
+  ],
   "prettier": {
     "quoteProps": "consistent",
     "singleQuote": true,
@@ -136,6 +127,10 @@
   "@react-native-community/bob": {
     "source": "src",
     "output": "lib",
-    "targets": ["commonjs", "module", "typescript"]
+    "targets": [
+      "commonjs",
+      "module",
+      "typescript"
+    ]
   }
 }

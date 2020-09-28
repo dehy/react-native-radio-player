@@ -1,0 +1,10 @@
+*
+
+# Included to the final package
+!ios/**/*
+ios/RadioPlayer.xcodeproj
+!android/**/*
+!react-native-radio-player.podspec
+!src/index.tsx
+!LICENSE
+!README
