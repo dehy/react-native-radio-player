@@ -1,6 +1,6 @@
 {
   "name": "react-native-radio-player",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "Play radio streams in react-native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
