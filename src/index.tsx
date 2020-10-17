@@ -3,7 +3,6 @@ import { NativeModules, NativeEventEmitter } from 'react-native';
 type RadioPlayerType = {
   radioURL(url: string): Promise<void>;
   play(): Promise<void>;
-  isPlaying(): Promise<boolean>;
   stop(): Promise<void>;
 };
 

@@ -13,75 +13,87 @@ import com.google.android.exoplayer2.metadata.icy.IcyInfo
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.util.EventLogger
 
+enum class PlayerState(val state: String) {
+  ERROR("error"),
+  STOPPED("stopped"),
+  PLAYING("playing"),
+  PAUSED("paused"),
+  BUFFERING("buffering"),
+}
 
 class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), Player.EventListener, MetadataOutput {
 
-    private val context = reactContext
-    private var player: SimpleExoPlayer = SimpleExoPlayer.Builder(reactContext).build()
+  private val context = reactContext
+  private var player: SimpleExoPlayer = SimpleExoPlayer.Builder(reactContext).build()
+  private var playbackState: Int = Player.STATE_IDLE
+  private var state: PlayerState? = null
 
-    override fun getName(): String {
-        return "RadioPlayer"
+  override fun getName(): String {
+    return "RadioPlayer"
+  }
+
+  init {
+    UiThreadUtil.runOnUiThread {
+      player.addAnalyticsListener(EventLogger(DefaultTrackSelector(this.context)))
+      player.addMetadataOutput(this)
+      player.setThrowsWhenUsingWrongThread(true)
+      player.setWakeMode(WAKE_MODE_NETWORK)
+      player.addListener(this)
     }
+  }
 
-    init {
-      UiThreadUtil.runOnUiThread {
-        player.addAnalyticsListener(EventLogger(DefaultTrackSelector(this.context)))
-        player.addMetadataOutput(this)
-        player.setThrowsWhenUsingWrongThread(true)
-        player.setWakeMode(WAKE_MODE_NETWORK)
-        player.addListener(this)
+  @ReactMethod
+  fun radioURL(uri: String) {
+    UiThreadUtil.runOnUiThread {
+      val item: MediaItem = MediaItem.fromUri(uri)
+      player.setMediaItem(item)
+      //play()
+    }
+  }
+
+  @ReactMethod
+  fun play() {
+    UiThreadUtil.runOnUiThread {
+      if (player.isPlaying) {
+        player.stop()
       }
+      player.prepare()
+      player.play()
     }
+  }
 
-    @ReactMethod
-    fun radioURL(uri: String) {
-      UiThreadUtil.runOnUiThread {
-        val item: MediaItem = MediaItem.fromUri(uri)
-        player.setMediaItem(item)
-        //play()
-      }
-    }
+  @ReactMethod
+  fun stop() {
+    UiThreadUtil.runOnUiThread { player.stop() }
+  }
 
-    @ReactMethod
-    fun play() {
-      UiThreadUtil.runOnUiThread {
-        if (player.isPlaying) {
-          player.stop()
-        }
-        player.prepare()
-        player.play()
-      }
-    }
+  private fun computeAndSendStateEvent() {
+    val previousState = this.state
 
-    @ReactMethod
-    fun stop() {
-      UiThreadUtil.runOnUiThread { player.stop() }
-    }
-
-  override fun onPlaybackStateChanged(state: Int) {
-    var stateString = "unknown"
-    var playbackStateString = "unknown"
-    when (state) {
+    when (this.playbackState) {
       Player.STATE_IDLE, Player.STATE_ENDED -> {
-        stateString = "loadingFinished"
-        playbackStateString = "stopped"
+        this.state = PlayerState.STOPPED
       }
       Player.STATE_BUFFERING -> {
-        stateString = "loading"
-        playbackStateString = "paused"
+        this.state = PlayerState.BUFFERING
       }
       Player.STATE_READY -> {
-        stateString = "loadingFinished"
-        playbackStateString = "playing"
+        this.state = PlayerState.PLAYING
       }
     }
-    val stateMap = WritableNativeMap()
-    stateMap.putString("state", stateString)
-    sendEvent(this.context, "StateDidChange", stateMap)
 
-    val playbackStateMap = WritableNativeMap()
-    playbackStateMap.putString("playbackState", playbackStateString)
-    sendEvent(this.context, "PlaybackStateDidChange", playbackStateMap)
+    if (this.state === null || this.state === previousState) {
+      return
+    }
+
+    val stateMap = WritableNativeMap()
+    stateMap.putString("state", this.state!!.state)
+    sendEvent(this.context, "StateDidChange", stateMap)
+  }
+
+  override fun onPlaybackStateChanged(state: Int) {
+    this.playbackState = state
+    computeAndSendStateEvent()
   }
 
   private fun sendEvent(reactContext: ReactContext,
@@ -97,7 +109,7 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
     var artistName = "Unknown"
     var trackName = "Unknown"
     for (i in 1..metadata.length()) {
-      val entry: Metadata.Entry = metadata.get(i-1)
+      val entry: Metadata.Entry = metadata.get(i - 1)
       if (entry is IcyInfo) {
         if (entry.title != null) {
           val parts: List<String> = entry.title!!.split(" - ")

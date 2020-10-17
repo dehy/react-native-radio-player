@@ -6,31 +6,26 @@ import RadioPlayer, {
 } from 'react-native-radio-player';
 
 export default function App() {
-  const [playerState, setPlayerState] = React.useState<string | undefined>();
-  const [playerPlaybackState, setPlayerPlaybackState] = React.useState<string | undefined>();
+  const [playerState, setPlayerState] = React.useState<string>('stopped');
   const [metadata, setMetadata] = React.useState<RadioPlayerMetadata>();
 
   React.useEffect(() => {
     RadioPlayerEvents.addListener('StateDidChange', (eventObject) => {
       setPlayerState(eventObject.state);
     });
-    RadioPlayerEvents.addListener('PlaybackStateDidChange', (eventObject) => {
-      setPlayerPlaybackState(eventObject.playbackState);
-    });
     return () => {
       RadioPlayerEvents.removeListener('StateDidChange', (eventObject) => {
         setPlayerState(eventObject.state);
       });
-      RadioPlayerEvents.removeListener(
-        'PlaybackStateDidChange',
-        (eventObject) => {
-          setPlayerPlaybackState(eventObject.playbackState);
-        }
-      );
     };
   }, []);
 
-  RadioPlayerEvents.addListener('MetadataDidChange', setMetadata);
+  React.useEffect(() => {
+    RadioPlayerEvents.addListener('MetadataDidChange', setMetadata);
+    return () => {
+      RadioPlayerEvents.addListener('MetadataDidChange', setMetadata);
+    };
+  }, []);
 
   React.useEffect(() => {
     RadioPlayer.radioURL('http://stream.fr.morow.com/morow_med.aacp');
@@ -59,17 +54,16 @@ export default function App() {
         <Button
           title="Play"
           onPress={play}
-          disabled={playerPlaybackState === 'playing' ? true : false}
+          disabled={playerState === 'stopped' ? false : true}
         />
         <Button
           title="Stop"
           onPress={stop}
-          disabled={playerPlaybackState === 'playing' ? false : true}
+          disabled={playerState === 'stopped' ? true : false}
         />
       </View>
       <View style={styles.container}>
         <Text>State: {playerState}</Text>
-        <Text>PlaybackState: {playerPlaybackState}</Text>
       </View>
     </View>
   );

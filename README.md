@@ -22,13 +22,9 @@ RadioPlayer.radioURL('https://...');
 RadioPlayer.stop();
 RadioPlayer.play();
 
-// State: loading, loadingFinished
+// State: error, stopped, playing, paused, buffering
 RadioPlayerEvents.addEventListener('stateDidChange', (event) => {
   console.log(event.state);
-});
-// Playback State: playing, paused, stopped
-RadioPlayerEvents.addEventListener('PlaybackStateDidChange', (event) => {
-  console.log(event.playbackState);
 });
 // Metadata: {"artistName": "Example Artist", "trackName": "Example Title"}
 RadioPlayerEvents.addListener('MetadataDidChange', (metadata) => {
