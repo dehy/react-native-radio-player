@@ -1,4 +1,6 @@
 # react-native-radio-player
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdehy%2Freact-native-radio-player.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdehy%2Freact-native-radio-player?ref=badge_shield)
+
 
 Play radio streams in react-native
 
@@ -40,3 +42,6 @@ See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the 
 ## License
 
 MIT
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdehy%2Freact-native-radio-player.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdehy%2Freact-native-radio-player?ref=badge_large)
