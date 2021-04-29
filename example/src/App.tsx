@@ -28,7 +28,8 @@ export default function App() {
   }, []);
 
   React.useEffect(() => {
-    RadioPlayer.radioURL('http://stream.fr.morow.com/morow_med.aacp');
+    RadioPlayer.radioURLWithMetadataSeparator('https://stream.fr.morow.com/morow_med.mp3', '-');
+    // RadioPlayer.radioURL('https://stream.fr.morow.com/morow_med.mp3');
     return () => {
       RadioPlayer.stop();
     };

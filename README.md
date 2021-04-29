@@ -20,7 +20,9 @@ import RadioPlayer, {
 
 // ...
 
-RadioPlayer.radioURL('https://...');
+const metadataSeparator = "-"; // Used to split artist and title in stream metadata
+RadioPlayer.radioURLWithMetadataSeparator('https://...', metadataSeparator);
+// or RadioPlayer.radioURL('https://...')
 RadioPlayer.stop();
 RadioPlayer.play();
 

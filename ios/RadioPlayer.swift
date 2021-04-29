@@ -10,6 +10,8 @@ class RadioPlayer: RCTEventEmitter, FRadioPlayerDelegate {
     var playerState: FRadioPlayerState = .urlNotSet;
     var playbackState: FRadioPlaybackState = .stopped;
     var state: PlayerState = .stopped;
+    
+    var metadataSeparator: String = "-"
         
     enum PlayerState: String {
         case error = "error"
@@ -57,6 +59,12 @@ class RadioPlayer: RCTEventEmitter, FRadioPlayerDelegate {
     
     @objc(radioURL:withResolver:withRejecter:)
     func radioURL(url: String, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+        radioURL = URL(string: url)
+    }
+    
+    @objc(radioURLWithMetadataSeparator:metadataSeparator:withResolver:withRejecter:)
+    func radioURL(url: String, withMetadataSeparator: String, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+        self.metadataSeparator = withMetadataSeparator
         radioURL = URL(string: url)
     }
     
@@ -118,8 +126,15 @@ class RadioPlayer: RCTEventEmitter, FRadioPlayerDelegate {
         computeAndSendStateEvent();
     }
     
-    func radioPlayer(_ player: FRadioPlayer, metadataDidChange artistName: String?, trackName: String?) {
+    func radioPlayer(_ player: FRadioPlayer, metadataDidChange rawValue: String?) {
         if (hasListeners) {
+            let parts = rawValue?.components(separatedBy: self.metadataSeparator)
+            var artistName: String? = nil
+            var trackName: String? = rawValue
+            if (parts != nil && parts!.count >= 2) {
+                artistName = parts?[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                trackName = parts?[1].trimmingCharacters(in: .whitespacesAndNewlines)
+            }
             sendEvent(withName: "MetadataDidChange", body: ["artistName": artistName, "trackName": trackName])
         }
     }

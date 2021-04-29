@@ -28,6 +28,8 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
   private var playbackState: Int = Player.STATE_IDLE
   private var state: PlayerState? = null
 
+  private var metadataSeparator: String = "-"
+
   override fun getName(): String {
     return "RadioPlayer"
   }
@@ -45,6 +47,16 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
   @ReactMethod
   fun radioURL(uri: String) {
     UiThreadUtil.runOnUiThread {
+      val item: MediaItem = MediaItem.fromUri(uri)
+      player.setMediaItem(item)
+      //play()
+    }
+  }
+
+  @ReactMethod
+  fun radioURLWithMetadataSeparator(uri: String, metadataSeparator: String) {
+    UiThreadUtil.runOnUiThread {
+      this.metadataSeparator = metadataSeparator
       val item: MediaItem = MediaItem.fromUri(uri)
       player.setMediaItem(item)
       //play()
@@ -106,15 +118,18 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
 
   override fun onMetadata(metadata: Metadata) {
     Log.i("RadioPlayerMetadata", metadata.toString())
-    var artistName = "Unknown"
-    var trackName = "Unknown"
+    var artistName: String? = null
+    var trackName: String? = null
     for (i in 1..metadata.length()) {
       val entry: Metadata.Entry = metadata.get(i - 1)
       if (entry is IcyInfo) {
         if (entry.title != null) {
-          val parts: List<String> = entry.title!!.split(" - ")
-          artistName = parts[0]
-          trackName = parts[1]
+          val parts: List<String> = entry.title!!.split(this.metadataSeparator)
+          trackName = entry.title!!
+          if (parts.count() >= 2) {
+            artistName = parts[0].trim()
+            trackName = parts[1].trim()
+          }
         }
       }
     }
