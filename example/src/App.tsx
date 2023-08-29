@@ -1,22 +1,25 @@
 import * as React from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import RadioPlayer, {
   RadioPlayerEvents,
-  RadioPlayerMetadata,
+  type RadioPlayerMetadata,
 } from 'react-native-radio-player';
 
 export default function App() {
   const [playerState, setPlayerState] = React.useState<string>('stopped');
   const [metadata, setMetadata] = React.useState<RadioPlayerMetadata>();
+  const theme = useColorScheme();
+  const isDarkTheme = theme === 'dark';
+
+  const backgroundColor = { backgroundColor: isDarkTheme ? 'black' : 'white' };
+  const textColor = { color: isDarkTheme ? 'white' : 'black' };
 
   React.useEffect(() => {
     RadioPlayerEvents.addListener('StateDidChange', (eventObject) => {
       setPlayerState(eventObject.state);
     });
     return () => {
-      RadioPlayerEvents.removeListener('StateDidChange', (eventObject) => {
-        setPlayerState(eventObject.state);
-      });
+      RadioPlayerEvents.removeAllListeners('StateDidChange');
     };
   }, []);
 
@@ -28,7 +31,10 @@ export default function App() {
   }, []);
 
   React.useEffect(() => {
-    RadioPlayer.radioURLWithMetadataSeparator('https://stream.fr.morow.com/morow_med.mp3', '-');
+    RadioPlayer.radioURLWithMetadataSeparator(
+      'https://stream.fr.morow.com/morow_med.mp3',
+      '-'
+    );
     // RadioPlayer.radioURL('https://stream.fr.morow.com/morow_med.mp3');
     return () => {
       RadioPlayer.stop();
@@ -44,12 +50,12 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, backgroundColor]}>
       <View style={styles.container}>
-        <Text>Title</Text>
-        <Text>{metadata?.trackName ?? 'Unknown'}</Text>
-        <Text>Artist</Text>
-        <Text>{metadata?.artistName ?? 'Unknown'}</Text>
+        <Text style={textColor}>Title</Text>
+        <Text style={textColor}>{metadata?.trackName ?? 'Unknown'}</Text>
+        <Text style={textColor}>Artist</Text>
+        <Text style={textColor}>{metadata?.artistName ?? 'Unknown'}</Text>
       </View>
       <View style={[styles.container, styles.actions]}>
         <Button

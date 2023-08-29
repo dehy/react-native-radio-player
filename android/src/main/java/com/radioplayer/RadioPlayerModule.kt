@@ -1,8 +1,10 @@
-package com.reactnativeradioplayer
+package com.radioplayer
 
 import android.util.Log
 import com.facebook.react.bridge.*
-import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
+import com.facebook.react.bridge.ReactContextBaseJavaModule
+import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.google.android.exoplayer2.C.WAKE_MODE_NETWORK
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
@@ -21,7 +23,7 @@ enum class PlayerState(val state: String) {
   BUFFERING("buffering"),
 }
 
-class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), Player.EventListener, MetadataOutput {
+class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), Player.Listener, MetadataOutput {
 
   private val context = reactContext
   private var player: SimpleExoPlayer = SimpleExoPlayer.Builder(reactContext).build()
@@ -37,8 +39,6 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
   init {
     UiThreadUtil.runOnUiThread {
       player.addAnalyticsListener(EventLogger(DefaultTrackSelector(this.context)))
-      player.addMetadataOutput(this)
-      player.setThrowsWhenUsingWrongThread(true)
       player.setWakeMode(WAKE_MODE_NETWORK)
       player.addListener(this)
     }
@@ -112,7 +112,7 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
                         eventName: String,
                         params: NativeMap) {
     reactContext
-      .getJSModule(RCTDeviceEventEmitter::class.java)
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
       .emit(eventName, params)
   }
 

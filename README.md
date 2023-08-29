@@ -45,5 +45,5 @@ See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the 
 
 MIT
 
-
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdehy%2Freact-native-radio-player.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdehy%2Freact-native-radio-player?ref=badge_large)
+Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)

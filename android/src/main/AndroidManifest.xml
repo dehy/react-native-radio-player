@@ -1,5 +1,3 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.reactnativeradioplayer">
-
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+          package="com.radioplayer">
 </manifest>
