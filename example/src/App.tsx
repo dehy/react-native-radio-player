@@ -61,12 +61,12 @@ export default function App() {
         <Button
           title="Play"
           onPress={play}
-          disabled={playerState === 'stopped' ? false : true}
+          disabled={playerState !== 'stopped'}
         />
         <Button
           title="Stop"
           onPress={stop}
-          disabled={playerState === 'stopped' ? true : false}
+          disabled={playerState === 'stopped'}
         />
       </View>
       <View style={styles.container}>

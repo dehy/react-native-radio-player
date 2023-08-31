@@ -10,7 +10,7 @@ type RadioPlayerType = {
   stop(): Promise<void>;
 };
 
-export type RadioPlayerMetadata = {
+type RadioPlayerMetadata = {
   artistName: string;
   trackName: string;
 };
@@ -35,3 +35,4 @@ const RadioPlayerEvents = new NativeEventEmitter(NativeModules.RadioPlayer);
 
 export default RadioPlayer as RadioPlayerType;
 export { RadioPlayerEvents };
+export type { RadioPlayerMetadata };
