@@ -26,7 +26,7 @@ export default function App() {
   React.useEffect(() => {
     RadioPlayerEvents.addListener('MetadataDidChange', setMetadata);
     return () => {
-      RadioPlayerEvents.addListener('MetadataDidChange', setMetadata);
+      RadioPlayerEvents.removeAllListeners('MetadataDidChange');
     };
   }, []);
 
