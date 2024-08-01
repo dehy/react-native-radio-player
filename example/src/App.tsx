@@ -5,7 +5,7 @@ import RadioPlayer, {
   type RadioPlayerMetadata,
 } from 'react-native-radio-player';
 
-export default function App() {
+export default function App(): JSX.Element {
   const [playerState, setPlayerState] = React.useState<string>('stopped');
   const [metadata, setMetadata] = React.useState<RadioPlayerMetadata>();
   const theme = useColorScheme();

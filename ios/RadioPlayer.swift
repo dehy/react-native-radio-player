@@ -35,7 +35,7 @@ class RadioPlayer: RCTEventEmitter, FRadioPlayerDelegate {
         return true
     }
     
-    /// Base overide for RCTEventEmitter.
+    /// Base override for RCTEventEmitter.
     ///
     /// - Returns: all supported events
     override func supportedEvents() -> [String] {

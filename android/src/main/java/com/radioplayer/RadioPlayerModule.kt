@@ -1,19 +1,24 @@
 package com.radioplayer
 
 import android.util.Log
-import com.facebook.react.bridge.*
+import androidx.media3.common.C.WAKE_MODE_NETWORK
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Metadata
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.metadata.MetadataOutput
+import androidx.media3.exoplayer.util.EventLogger
+import com.facebook.react.bridge.NativeMap
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.UiThreadUtil
+import com.facebook.react.bridge.WritableNativeMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
-import com.google.android.exoplayer2.C.WAKE_MODE_NETWORK
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.metadata.Metadata
-import com.google.android.exoplayer2.metadata.MetadataOutput
-import com.google.android.exoplayer2.metadata.icy.IcyInfo
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.util.EventLogger
+
 
 enum class PlayerState(val state: String) {
   ERROR("error"),
@@ -23,10 +28,12 @@ enum class PlayerState(val state: String) {
   BUFFERING("buffering"),
 }
 
-class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), Player.Listener, MetadataOutput {
+@UnstableApi
+class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), Player.Listener,
+  MetadataOutput {
 
   private val context = reactContext
-  private var player: SimpleExoPlayer = SimpleExoPlayer.Builder(reactContext).build()
+  private var player: ExoPlayer = ExoPlayer.Builder(reactContext).build()
   private var playbackState: Int = Player.STATE_IDLE
   private var state: PlayerState? = null
 
@@ -38,10 +45,19 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
 
   init {
     UiThreadUtil.runOnUiThread {
-      player.addAnalyticsListener(EventLogger(DefaultTrackSelector(this.context)))
+      player.addAnalyticsListener(EventLogger())
       player.setWakeMode(WAKE_MODE_NETWORK)
       player.addListener(this)
     }
+  }
+
+  // Required for rn built in EventEmitter Calls.
+  @ReactMethod
+  fun addListener(eventName: String?) {
+  }
+
+  @ReactMethod
+  fun removeListeners(count: Int?) {
   }
 
   @ReactMethod
@@ -110,32 +126,32 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
 
   private fun sendEvent(reactContext: ReactContext,
                         eventName: String,
-                        params: NativeMap) {
+                        params: NativeMap
+  ) {
     reactContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
       .emit(eventName, params)
   }
 
-  override fun onMetadata(metadata: Metadata) {
-    Log.i("RadioPlayerMetadata", metadata.toString())
+  override fun onMediaMetadataChanged(metadata: MediaMetadata) {
+    Log.i("RadioPlayerMediaMetadata", metadata.toString())
     var artistName: String? = null
     var trackName: String? = null
-    for (i in 1..metadata.length()) {
-      val entry: Metadata.Entry = metadata.get(i - 1)
-      if (entry is IcyInfo) {
-        if (entry.title != null) {
-          val parts: List<String> = entry.title!!.split(this.metadataSeparator)
-          trackName = entry.title!!
-          if (parts.count() >= 2) {
-            artistName = parts[0].trim()
-            trackName = parts[1].trim()
-          }
-        }
+    if (metadata.title != null) {
+      val parts: List<String> = metadata.title!!.split(this.metadataSeparator)
+      trackName = metadata.title!!.toString()
+      if (parts.count() >= 2) {
+        artistName = parts[0].trim()
+        trackName = parts[1].trim()
       }
     }
     val metadataMap = WritableNativeMap()
     metadataMap.putString("artistName", artistName)
     metadataMap.putString("trackName", trackName)
     sendEvent(this.context, "MetadataDidChange", metadataMap)
+  }
+
+  override fun onMetadata(metadata: Metadata) {
+    Log.i("RadioPlayerMetadata", metadata.toString())
   }
 }
