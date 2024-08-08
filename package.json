@@ -186,7 +186,7 @@
     "typecheck": "tsc"
   },
   "source": "./src/index.tsx",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "workspaces": [
     "example"
   ]
