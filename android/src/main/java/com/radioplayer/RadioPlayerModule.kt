@@ -1,7 +1,9 @@
 package com.radioplayer
 
 import android.util.Log
-import android.content.ComponentName;
+import android.content.ComponentName
+//import androidx.core.content.ContextCompat
+import com.google.common.util.concurrent.MoreExecutors
 import androidx.media3.common.C.WAKE_MODE_NETWORK
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -69,7 +71,7 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
   MetadataOutput {
 
   private val context = reactContext
-  private var player: Player? = null
+  private var controller: MediaController? = null
   private var playbackState: Int = Player.STATE_IDLE
   private var state: PlayerState? = null
 
@@ -81,18 +83,19 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
 
   init {
     UiThreadUtil.runOnUiThread {
-      val sessionToken = SessionToken(this, ComponentName(this, PlaybackService::class.java))
-      val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
+      val sessionToken = SessionToken(context, ComponentName(context, PlaybackService::class.java))
+      val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
       controllerFuture.addListener(
         {
           // Call controllerFuture.get() to retrieve the MediaController.
           // MediaController implements the Player interface, so it can be
           // attached to the PlayerView UI component.
           // playerView.setPlayer(controllerFuture.get())
-          player = controllerFuture.get()
+          val player= controllerFuture.get()
           player.addListener(this)
+          controller = player
         },
-        //MoreExecutors.directExecutor()
+        MoreExecutors.directExecutor()
       )
 
       // player.addAnalyticsListener(EventLogger())
@@ -113,6 +116,7 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
   @ReactMethod
   fun radioURL(uri: String) {
     UiThreadUtil.runOnUiThread {
+      val player = controller
       if (player != null) {
         val item: MediaItem = MediaItem.fromUri(uri)
         player.setMediaItem(item)
@@ -124,6 +128,7 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
   @ReactMethod
   fun radioURLWithMetadataSeparator(uri: String, metadataSeparator: String) {
     UiThreadUtil.runOnUiThread {
+      val player = controller
       if (player != null) {
         this.metadataSeparator = metadataSeparator
         val item: MediaItem = MediaItem.fromUri(uri)
@@ -136,6 +141,7 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
   @ReactMethod
   fun play() {
     UiThreadUtil.runOnUiThread {
+      val player = controller
       if (player != null) {
         if (player.isPlaying) {
           player.stop()
@@ -149,8 +155,10 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
   @ReactMethod
   fun stop() {
     UiThreadUtil.runOnUiThread {
+      val player = controller
       if (player != null)
         player.stop()
+        player?.release()
     }
   }
 
