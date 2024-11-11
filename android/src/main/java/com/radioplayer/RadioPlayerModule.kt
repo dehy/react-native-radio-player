@@ -77,6 +77,8 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
 
   private var metadataSeparator: String = "-"
 
+  private val TAG = "RadioPlayerModule"
+
   override fun getName(): String {
     return "RadioPlayer"
   }
@@ -91,7 +93,8 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
           // MediaController implements the Player interface, so it can be
           // attached to the PlayerView UI component.
           // playerView.setPlayer(controllerFuture.get())
-          val player= controllerFuture.get()
+          val player = controllerFuture.get()
+
           player.addListener(this)
           controller = player
         },
@@ -156,9 +159,10 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
   fun stop() {
     UiThreadUtil.runOnUiThread {
       val player = controller
-      if (player != null)
+      if (player != null) {
         player.stop()
-        player?.release()
+        player.release()
+      }
     }
   }
 
@@ -198,6 +202,7 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
     eventName: String,
     params: NativeMap
   ) {
+
     reactContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
       .emit(eventName, params)
