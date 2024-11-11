@@ -12,6 +12,30 @@ yarn install react-native-radio-player
 
 ## Usage
 
+In android/main/AndroidManifest.xml :
+
+ - Add the following permissions
+```xml
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+```
+ - Add the following queries intent
+```xml
+  <queries>
+    <intent>
+      <action android:name="androidx.media3.session.MediaSessionService"/>
+    </intent>
+  </queries>
+```
+ - Add the following service under the application tag
+```xml
+  <service android:name="com.radioplayer.PlaybackService" android:foregroundServiceType="mediaPlayback" android:exported="true">
+    <intent-filter>
+      <action android:name="androidx.media3.session.MediaSessionService"/>
+    </intent-filter>
+  </service>
+```
+
 ```js
 import RadioPlayer, {
   RadioPlayerEvents,
