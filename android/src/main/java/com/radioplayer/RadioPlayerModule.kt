@@ -144,19 +144,13 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
   @ReactMethod
   fun play() {
     UiThreadUtil.runOnUiThread {
-      android.util.Log.d(TAG, "1 play() called")
       val player = controller
-      android.util.Log.d(TAG, "2 play() called $player")
       if (player != null) {
         if (player.isPlaying) {
-          android.util.Log.d(TAG, "3 play() called stop")
           player.stop()
         }
-        android.util.Log.d(TAG, "4 play() called")
         player.prepare()
-        android.util.Log.d(TAG, "5 play() called")
         player.play()
-        android.util.Log.d(TAG, "6 play() called")
       }
     }
   }
@@ -167,14 +161,13 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
       val player = controller
       if (player != null) {
         player.stop()
-        //player.release()
+        player.release()
       }
     }
   }
 
   private fun computeAndSendStateEvent() {
     val previousState = this.state
-    android.util.Log.d(TAG, "computeAndSendStateEvent() called : playbackState $playbackState")
 
     when (this.playbackState) {
       Player.STATE_IDLE, Player.STATE_ENDED -> {
@@ -200,7 +193,6 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
   }
 
   override fun onPlaybackStateChanged(state: Int) {
-    android.util.Log.d(TAG, "onPlaybackStateChanged() called with: state = $state")
     this.playbackState = state
     computeAndSendStateEvent()
   }
@@ -210,10 +202,7 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
     eventName: String,
     params: NativeMap
   ) {
-    android.util.Log.d(
-      TAG,
-      "sendEvent() called with: reactContext = $reactContext, eventName = $eventName, params = $params"
-    )
+
     reactContext
       .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
       .emit(eventName, params)
