@@ -161,7 +161,7 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) : ReactContextBas
       val player = controller
       if (player != null) {
         player.stop()
-        player.release()
+        //player.release()
       }
     }
   }
