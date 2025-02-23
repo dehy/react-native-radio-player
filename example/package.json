@@ -9,20 +9,44 @@
     "build:android": "react-native build-android --extra-params \"--no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a\"",
     "build:ios": "react-native build-ios --scheme RadioPlayerExample --mode Debug --extra-params \"-sdk iphonesimulator CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ GCC_OPTIMIZATION_LEVEL=0 GCC_PRECOMPILE_PREFIX_HEADER=YES ASSETCATALOG_COMPILER_OPTIMIZATION=time DEBUG_INFORMATION_FORMAT=dwarf COMPILER_INDEX_STORE_ENABLE=NO\""
   },
-  "dependencies": {
-    "react": "18.2.0",
-    "react-native": "0.74.4"
-  },
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",
     "@babel/runtime": "^7.20.0",
-    "@react-native/babel-preset": "0.74.86",
-    "@react-native/metro-config": "0.74.86",
+    "@react-native/babel-preset": "^0.74.0",
+    "@react-native/metro-config": "^0.74.0",
     "@react-native/typescript-config": "0.74.86",
+    "@rnx-kit/align-deps": "^3.0.3",
+    "react": "18.2.0",
+    "react-native": "^0.74.0",
     "react-native-builder-bob": "^0.29.0"
   },
   "engines": {
     "node": ">=18"
+  },
+  "rnx-kit": {
+    "kitType": "library",
+    "alignDeps": {
+      "requirements": {
+        "development": [
+          "react-native@0.74"
+        ],
+        "production": [
+          "react-native@0.74"
+        ]
+      },
+      "capabilities": [
+        "babel-preset-react-native",
+        "core",
+        "core-android",
+        "core-ios",
+        "core/metro-config",
+        "react"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "react": "18.2.0",
+    "react-native": "^0.74.0"
   }
 }
