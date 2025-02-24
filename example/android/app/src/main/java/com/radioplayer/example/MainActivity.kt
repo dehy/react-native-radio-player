@@ -1,4 +1,4 @@
-package radioplayer.example
+package com.radioplayer.example
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
