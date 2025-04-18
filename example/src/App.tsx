@@ -70,7 +70,7 @@ export default function App(): JSX.Element {
         />
       </View>
       <View style={styles.container}>
-        <Text>State: {playerState}</Text>
+        <Text style={textColor}>State: {playerState}</Text>
       </View>
     </View>
   );
