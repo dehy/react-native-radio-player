@@ -39,5 +39,5 @@ Pod::Spec.new do |s|
     end
   end
   
-  s.dependency "FRadioPlayer"
+  s.dependency "SwiftRadioPlayer", "~> 0.2.1"
 end

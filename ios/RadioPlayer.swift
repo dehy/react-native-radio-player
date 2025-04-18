@@ -1,14 +1,14 @@
-import FRadioPlayer
+import SwiftRadioPlayer
 
 @objc(RadioPlayer)
-class RadioPlayer: RCTEventEmitter, FRadioPlayerDelegate {
+class RadioPlayer: RCTEventEmitter, SwiftRadioPlayerDelegate {
 
     var hasListeners: Bool = false;
-    let player: FRadioPlayer
+    let player: SwiftRadioPlayer
     var radioURL: URL?
     
-    var playerState: FRadioPlayerState = .urlNotSet;
-    var playbackState: FRadioPlaybackState = .stopped;
+    var playerState: SwiftRadioPlayerState = .urlNotSet;
+    var playbackState: SwiftRadioPlaybackState = .stopped;
     var state: PlayerState = .stopped;
     
     var metadataSeparator: String = "-"
@@ -22,7 +22,7 @@ class RadioPlayer: RCTEventEmitter, FRadioPlayerDelegate {
     }
 
     override init() {
-        player = FRadioPlayer.shared
+        player = SwiftRadioPlayer.shared
         super.init()
                 
         player.isAutoPlay = true
@@ -116,17 +116,17 @@ class RadioPlayer: RCTEventEmitter, FRadioPlayerDelegate {
         }
     }
     
-    func radioPlayer(_ player: FRadioPlayer, playerStateDidChange state: FRadioPlayerState) {
+    func radioPlayer(_ player: SwiftRadioPlayer, playerStateDidChange state: SwiftRadioPlayerState) {
         self.playerState = state
         computeAndSendStateEvent();
     }
     
-    func radioPlayer(_ player: FRadioPlayer, playbackStateDidChange state: FRadioPlaybackState) {
+    func radioPlayer(_ player: SwiftRadioPlayer, playbackStateDidChange state: SwiftRadioPlaybackState) {
         self.playbackState = state;
         computeAndSendStateEvent();
     }
     
-    func radioPlayer(_ player: FRadioPlayer, metadataDidChange rawValue: String?) {
+    func radioPlayer(_ player: SwiftRadioPlayer, metadataDidChange rawValue: String?) {
         if (hasListeners) {
             let parts = rawValue?.components(separatedBy: self.metadataSeparator)
             var artistName: String? = nil

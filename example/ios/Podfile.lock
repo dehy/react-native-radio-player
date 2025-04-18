@@ -4,7 +4,6 @@ PODS:
   - fast_float (6.1.4)
   - FBLazyVector (0.76.9)
   - fmt (11.0.2)
-  - FRadioPlayer (0.1.22)
   - glog (0.3.5)
   - hermes-engine (0.76.9):
     - hermes-engine/Pre-built (= 0.76.9)
@@ -1289,7 +1288,6 @@ PODS:
     - Yoga
   - react-native-radio-player (0.4.0):
     - DoubleConversion
-    - FRadioPlayer
     - glog
     - hermes-engine
     - RCT-Folly (= 2024.10.14.00)
@@ -1308,6 +1306,7 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
+    - SwiftRadioPlayer (~> 0.2.1)
     - Yoga
   - React-nativeconfig (0.76.9)
   - React-NativeModulesApple (0.76.9):
@@ -1582,6 +1581,7 @@ PODS:
     - React-perflogger
     - React-utils (= 0.76.9)
   - SocketRocket (0.7.1)
+  - SwiftRadioPlayer (0.2.1)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -1655,8 +1655,8 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - FRadioPlayer
     - SocketRocket
+    - SwiftRadioPlayer
 
 EXTERNAL SOURCES:
   boost:
@@ -1797,7 +1797,6 @@ SPEC CHECKSUMS:
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 7605ea4810e0e10ae4815292433c09bf4324ba45
   fmt: 01b82d4ca6470831d1cc0852a1af644be019e8f6
-  FRadioPlayer: 7c6173cc44a3be39a9419abd3a931d9223e175e4
   glog: 08b301085f15bcbb6ff8632a8ebaf239aae04e6a
   hermes-engine: 9e868dc7be781364296d6ee2f56d0c1a9ef0bb11
   RCT-Folly: ea9d9256ba7f9322ef911169a9f696e5857b9e17
@@ -1829,7 +1828,7 @@ SPEC CHECKSUMS:
   React-logger: c4052eb941cca9a097ef01b59543a656dc088559
   React-Mapbuffer: 33546a3ebefbccb8770c33a1f8a5554fa96a54de
   React-microtasksnativemodule: d80ff86c8902872d397d9622f1a97aadcc12cead
-  react-native-radio-player: 4e7b93d7c5b33cbd37d0d7958fb32cc6093d077a
+  react-native-radio-player: eba1c101a176bc58a4afa691e24b8f57ad51fa5b
   React-nativeconfig: 8efdb1ef1e9158c77098a93085438f7e7b463678
   React-NativeModulesApple: cebca2e5320a3d66e123cade23bd90a167ffce5e
   React-perflogger: 72e653eb3aba9122f9e57cf012d22d2486f33358
@@ -1858,6 +1857,7 @@ SPEC CHECKSUMS:
   ReactCodegen: f853a20cc9125c5521c8766b4b49375fec20648b
   ReactCommon: 300d8d9c5cb1a6cd79a67cf5d8f91e4d477195f9
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
+  SwiftRadioPlayer: 682fdd89027f722d08f7d67ebc57a13b1b4409ec
   Yoga: feb4910aba9742cfedc059e2b2902e22ffe9954a
 
 PODFILE CHECKSUM: 85fbae4bd62d17175e6d1ce9959ffa6626091872
