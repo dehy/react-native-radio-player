@@ -3,28 +3,29 @@ import SwiftRadioPlayer
 @objc(RadioPlayer)
 class RadioPlayer: RCTEventEmitter, SwiftRadioPlayerDelegate {
 
-    var hasListeners: Bool = false;
-    let player: SwiftRadioPlayer
-    var radioURL: URL?
-    
-    var playerState: SwiftRadioPlayerState = .urlNotSet;
-    var playbackState: SwiftRadioPlaybackState = .stopped;
-    var state: PlayerState = .stopped;
-    
-    var metadataSeparator: String = "-"
-        
-    enum PlayerState: String {
-        case error = "error"
-        case stopped = "stopped"
-        case playing = "playing"
-        case paused = "paused"
-        case buffering = "buffering"
+    private var hasListeners = false
+    private let player: SwiftRadioPlayer = SwiftRadioPlayer.shared
+    private var radioURL: URL?
+    private var playerState: SwiftRadioPlayerState = .urlNotSet
+    private var playbackState: SwiftRadioPlaybackState = .stopped
+    private var state: PlayerState = .stopped
+    private var metadataSeparator: String = "-"
+
+    private enum PlayerState: String {
+        case error, stopped, playing, paused, buffering
+    }
+
+    private enum EventName: String {
+        case stateDidChange = "StateDidChange"
+        case metadataDidChange = "MetadataDidChange"
     }
 
     override init() {
-        player = SwiftRadioPlayer.shared
         super.init()
-                
+        configurePlayer()
+    }
+
+    private func configurePlayer() {
         player.isAutoPlay = true
         player.enableArtwork = false
         player.delegate = self
@@ -34,113 +35,106 @@ class RadioPlayer: RCTEventEmitter, SwiftRadioPlayerDelegate {
     override static func requiresMainQueueSetup() -> Bool {
         return true
     }
-    
-    /// Base override for RCTEventEmitter.
-    ///
-    /// - Returns: all supported events
+
     override func supportedEvents() -> [String] {
-        return [
-            "StateDidChange",
-            "MetadataDidChange"
-        ]
-    }
-    
-    // Will be called when this module's first listener is added.
-    override func startObserving() {
-        hasListeners = true;
-        // Set up any upstream listeners or background tasks as necessary
+        return [EventName.stateDidChange.rawValue, EventName.metadataDidChange.rawValue]
     }
 
-    // Will be called when this module's last listener is removed, or on dealloc.
+    override func startObserving() {
+        hasListeners = true
+    }
+
     override func stopObserving() {
-        hasListeners = false;
-        // Remove upstream listeners, stop unnecessary background tasks
+        hasListeners = false
     }
-    
+
     @objc(radioURL:withResolver:withRejecter:)
-    func radioURL(url: String, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
-        radioURL = URL(string: url)
+    func setRadioURL(url: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+        guard let validURL = URL(string: url) else {
+            reject("INVALID_URL", "The provided URL is invalid", nil)
+            return
+        }
+        radioURL = validURL
+        resolve(nil)
     }
-    
+
     @objc(radioURLWithMetadataSeparator:metadataSeparator:withResolver:withRejecter:)
-    func radioURL(url: String, withMetadataSeparator: String, resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
-        self.metadataSeparator = withMetadataSeparator
-        radioURL = URL(string: url)
+    func setRadioURLWithMetadataSeparator(url: String, metadataSeparator: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+        guard let validURL = URL(string: url) else {
+            reject("INVALID_URL", "The provided URL is invalid", nil)
+            return
+        }
+        self.metadataSeparator = metadataSeparator
+        radioURL = validURL
+        resolve(nil)
     }
-    
+
     @objc(play:withRejecter:)
-    func play(resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
-        if (radioURL == nil) {
-            print("radioURL not set")
+    func play(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+        guard let radioURL = radioURL else {
+            reject("URL_NOT_SET", "radioURL not set", nil)
             return
         }
         player.radioURL = radioURL
+        resolve(nil)
     }
 
     @objc(isPlaying:withRejecter:)
-    func isPlaying(resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+    func isPlaying(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
         resolve(player.isPlaying)
     }
-    
+
     @objc(stop:withRejecter:)
-    func stop(resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+    func stop(resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
         player.stop()
+        resolve(nil)
     }
-    
-    func computeAndSendStateEvent() {
-        let previousState = self.state
-        
-        if (self.playerState == .error) {
-            self.state = .error
+
+    private func computeAndSendStateEvent() {
+        let previousState = state
+
+        switch playerState {
+        case .error, .urlNotSet:
+            state = .error
+        case .loading:
+            state = .buffering
+        case .loadingFinished where playbackState == .playing:
+            state = .playing
+        case .readyToPlay where playbackState == .paused:
+            state = .paused
+        case .loadingFinished where playbackState == .stopped:
+            state = .stopped
+        default:
+            break
         }
-        if (self.playerState == .urlNotSet) {
-            self.state = .error
-        }
-        if (self.playerState == .loading) {
-            self.state = .buffering
-        }
-        if (self.playbackState == .playing && self.playerState == .loadingFinished) {
-            self.state = .playing
-        }
-        if (self.playbackState == .paused && self.playerState == .readyToPlay) {
-            self.state = .paused
-        }
-        if (self.playbackState == .stopped && self.playerState == .loadingFinished) {
-            self.state = .stopped
-        }
-        
-        print("\(self.playbackState.description) + \(self.playerState.description) = \(self.state)")
-        if self.state == previousState {
+
+        guard state != previousState else {
             print("Same state as previously. Skipping sending event")
             return
         }
-        if (hasListeners) {
-            print("Sending \"\(self.state)\" event...")
-            let eventBody = ["state": self.state.rawValue]
-            sendEvent(withName: "StateDidChange", body: eventBody)
+
+        if hasListeners {
+            sendEvent(withName: EventName.stateDidChange.rawValue, body: ["state": state.rawValue])
         }
     }
-    
+
     func radioPlayer(_ player: SwiftRadioPlayer, playerStateDidChange state: SwiftRadioPlayerState) {
-        self.playerState = state
-        computeAndSendStateEvent();
+        playerState = state
+        computeAndSendStateEvent()
     }
-    
+
     func radioPlayer(_ player: SwiftRadioPlayer, playbackStateDidChange state: SwiftRadioPlaybackState) {
-        self.playbackState = state;
-        computeAndSendStateEvent();
+        playbackState = state
+        computeAndSendStateEvent()
     }
-    
+
     func radioPlayer(_ player: SwiftRadioPlayer, metadataDidChange rawValue: String?) {
-        if (hasListeners) {
-            let parts = rawValue?.components(separatedBy: self.metadataSeparator)
-            var artistName: String? = nil
-            var trackName: String? = rawValue
-            if (parts != nil && parts!.count >= 2) {
-                artistName = parts?[0].trimmingCharacters(in: .whitespacesAndNewlines)
-                trackName = parts?[1].trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            sendEvent(withName: "MetadataDidChange", body: ["artistName": artistName, "trackName": trackName])
-        }
+        guard hasListeners else { return }
+
+        let parts = rawValue?.components(separatedBy: metadataSeparator)
+        let artistName = parts?.first?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trackName = parts?.dropFirst().joined(separator: metadataSeparator).trimmingCharacters(in: .whitespacesAndNewlines)
+
+        sendEvent(withName: EventName.metadataDidChange.rawValue, body: ["artistName": artistName ?? "", "trackName": trackName ?? ""])
     }
 }
