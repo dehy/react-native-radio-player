@@ -8,6 +8,7 @@ type RadioPlayerType = {
   ): Promise<void>;
   play(): Promise<void>;
   stop(): Promise<void>;
+  isPlaying(): Promise<boolean>;
 };
 
 type RadioPlayerMetadata = {
