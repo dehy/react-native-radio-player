@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Metadata
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.metadata.MetadataOutput
@@ -12,6 +13,7 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
+import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 
 enum class PlayerState(val state: String) {
@@ -29,6 +31,7 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) :
     MetadataOutput {
 
     private val context = reactContext
+    private lateinit var controllerFuture: ListenableFuture<MediaController>
     private var controller: MediaController? = null
     private var playbackState: Int = Player.STATE_IDLE
     private var state: PlayerState? = null
@@ -43,13 +46,15 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) :
     override fun getName(): String = "RadioPlayer"
 
     init {
+        super.initialize()
         UiThreadUtil.runOnUiThread {
             val sessionToken = SessionToken(context, ComponentName(context, PlaybackService::class.java))
-            val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
+            controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
             controllerFuture.addListener({
-                controller = controllerFuture.get().apply {
-                    addListener(this@RadioPlayerModule)
-                }
+              if (controllerFuture.isDone) {
+                controller = controllerFuture.get()
+                controller?.addListener(this)
+              }
             }, MoreExecutors.directExecutor())
         }
     }
@@ -97,6 +102,13 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) :
         }
     }
 
+    @ReactMethod
+    fun isPlaying(promise: Promise) {
+        UiThreadUtil.runOnUiThread {
+            promise.resolve(controller?.isPlaying ?: false)
+        }
+    }
+
     private fun computeAndSendStateEvent() {
         val previousState = state
 
@@ -126,7 +138,7 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) :
     }
 
     override fun onMediaMetadataChanged(metadata: MediaMetadata) {
-        Log.i(TAG, metadata.toString())
+       log("onMediaMetadataChanged=$metadata")
         val (artistName, trackName) = metadata.title?.split(metadataSeparator)?.let {
           it.getOrNull(0)?.trim() to it.getOrNull(1)?.trim()
         } ?: (null to null)
@@ -140,5 +152,24 @@ class RadioPlayerModule(reactContext: ReactApplicationContext) :
 
     override fun onMetadata(metadata: Metadata) {
         Log.i(TAG, metadata.toString())
+    }
+
+    override fun onIsPlayingChanged(isPlaying: Boolean) {
+      super.onIsPlayingChanged(isPlaying)
+      log("onIsPlayingChanged=$isPlaying")
+    }
+
+    override fun onPlayerError(error: PlaybackException) {
+      super.onPlayerError(error)
+      log("onPlayerError=${error.stackTraceToString()}")
+    }
+
+    override fun onPlayerErrorChanged(error: PlaybackException?) {
+      super.onPlayerErrorChanged(error)
+      log("onPlayerErrorChanged=${error?.stackTraceToString()}")
+    }
+
+    private fun log(message: String) {
+      Log.e("=====[Media3]=====", message)
     }
 }
